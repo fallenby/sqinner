@@ -1,5 +1,5 @@
 # sqinner
-MSSQL login bruteforcer and `xp_cmdshell` wrapper
+A SQL service login bruteforcer and MSSQL `xp_cmdshell` wrapper
 
 ## Setup
 
