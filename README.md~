@@ -21,25 +21,27 @@ A MSSQL service login bruteforcer and `xp_cmdshell` wrapper
 
 ## Usage 
 
-#### Help
-
-`python sqinner.py -h`
-
-#### General usage
-
 sqinner's command format is as follows:
 
 `python sqinner.py <target> <port> -u/--usernames <usernames> -p/--passwords <passwords> [-v/--verbose]`
 
 With the following inputs:
 
-`<target>` - the IP address or hostname of the target running MSSQL
+`<target>`
+The IP address or hostname of the target running MSSQL
 
-`<port>` - which port to attempt a connection on
+`<port>`
+Which port to attempt a connection on
 
-`<usernames>` - a single value or comma-separated list of usernames and/or filenames in which to look for usernames, e.g. `-u users.txt,sa,test`
+`<usernames>`
+A single value or comma-separated list of usernames and/or filenames in which to look for usernames
 
-`<passwords>` - a single value or comma-separated list of passwords and/or filenames in which to look for passwords, e.g. `-u passwords.txt,sa,test`
+e.g. `-u users.txt,sa,test`
+
+`<passwords>`
+A single value or comma-separated list of passwords and/or filenames in which to look for passwords
+
+e.g. `-u passwords.txt,sa,test`
 
 ## Examples
 
