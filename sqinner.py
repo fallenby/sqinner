@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # pySkully
 # A MSSQL service login bruteforcer and xp_cmdshell wrapper
 # Author: Frank Allenby - frank@sensepost.com
