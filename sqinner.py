@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# sqinner
+# Sqinner
 # A MSSQL service login bruteforcer and xp_cmdshell wrapper
 # Author: Frank Allenby - frank@allen.by
 
@@ -9,11 +9,11 @@ import argparse
 import _mssql
 
 program_info = {
-    'name': 'pySkully',
-    'description': 'A MSSQL service login bruteforcer and xp_cmdshell wrapper',
+    'name': 'Sqinner',
+    'descriptio': 'A MSSQL service login bruteforcer and xp_cmdshell wrapper',
     'author': {
         'name': 'Frank Allenby',
-        'email': 'frank@sensepost.com'
+        'email': 'frank@allen.by'
     }
 }
 
