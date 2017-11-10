@@ -1,7 +1,8 @@
 #!/usr/bin/env python
-# pySkully
+
+# sqinner
 # A MSSQL service login bruteforcer and xp_cmdshell wrapper
-# Author: Frank Allenby - frank@sensepost.com
+# Author: Frank Allenby - frank@allen.by
 
 import sys
 import argparse
