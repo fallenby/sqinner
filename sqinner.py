@@ -10,7 +10,7 @@ import _mssql
 
 program_info = {
     'name': 'Sqinner',
-    'descriptio': 'A MSSQL service login bruteforcer and xp_cmdshell wrapper',
+    'description': 'A MSSQL service login bruteforcer and xp_cmdshell wrapper',
     'author': {
         'name': 'Frank Allenby',
         'email': 'frank@allen.by'
